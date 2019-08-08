@@ -75,18 +75,23 @@ main (int argc, char **argv)
   {
     p4est_connectivity_t *connectivity4 = p4est_connectivity_new_cube_s();
 
-    double *topvertices = malloc(sizeof(double)*connectivity4->num_vertices*3);
-    for(p4est_topidx_t i = 0; i < connectivity4->num_vertices*3; ++i) {
-      topvertices[i] = 2*connectivity4->vertices[i];
+    p4est_connectivity_t *refineconn4 = p4est_connectivity_refine(connectivity4, 3);
+
+    double *topvertices = malloc(sizeof(double)*refineconn4->num_vertices*3);
+    for(p4est_topidx_t i = 0; i < refineconn4->num_vertices*3; ++i) {
+      topvertices[i] = 2*refineconn4->vertices[i];
     }
 
-    connectivity = p6est_connectivity_new(connectivity4, topvertices, NULL);
+    connectivity = p6est_connectivity_new(refineconn4, topvertices, NULL);
 
+    p4est_connectivity_destroy(refineconn4);
     p4est_connectivity_destroy(connectivity4);
     free(topvertices);
   }
 
-  p6est_t* p6est = p6est_new(comm, connectivity, 0, NULL, NULL);
+  p6est_t* p6est =
+    p6est_new_ext(comm, connectivity, 0, 1, 4, 3, 0, 0, NULL, NULL);
+
   p6est_partition(p6est, NULL);
   p6est_ghost_t *ghost = p6est_ghost_new(p6est, P4EST_CONNECT_FULL);
   p6est_lnodes_t *lnodes = p6est_lnodes_new(p6est, ghost, 1);
