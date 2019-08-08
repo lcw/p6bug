@@ -20,7 +20,7 @@ UNAME_S := $(shell uname -s)
 CPPFLAGS += -Ip4est/local/include
 LDFLAGS += -Lp4est/local/lib
 LDLIBS += -lp4est -lsc
-ifeq ($(UNAME_S),Linux)
+ifeq ($(UNAME_S),$(filter $(UNAME_S),Linux FreeBSD))
  LDFLAGS += -Wl,-rpath=$(CURDIR)/p4est/local/lib,--enable-new-dtags
 endif
 
@@ -28,7 +28,7 @@ all: p6bug
 
 p4est:
 	tar xzf tpl/p4est-*.tar.gz && mv p4est-* p4est
-	cd p4est && ./configure CC=$(CC) CXX=$(CXX) F77=$(F77) FC=$(FC) --enable-mpi --enable-debug \
+	cd p4est && ./configure CC=$(CC) CXX=$(CXX) F77=$(F77) FC=$(FC) LIBS=-lm --enable-mpi --enable-debug \
            && $(MAKE) install
 
 # Dependencies
